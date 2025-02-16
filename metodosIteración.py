@@ -8,7 +8,8 @@ print('''
       π: pi,
       |x|: abs,
       e (euler): E,
-      diff(expresion, variable): Derivar una expresión
+      diff(expresion, variable): Derivar una expresión,
+      abs(expresion): Valor absoluto
 ''')
 
 def obtener_funcion (expresion: str, variables: str | List[str] ):
