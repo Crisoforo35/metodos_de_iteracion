@@ -40,8 +40,6 @@ def biseccion():
     funcion = ''
     valores = []
 
-    # x^4 + 3 * (x^3) - 2
-    # 10*(E^(t/2)) * cos(2*t)-4
     # Solicitar los datos al usuario
     print('Método de la bisección')
     print('Ejemplo de variables: "a" o "a,b,c" si son mas variables\n')
@@ -72,11 +70,6 @@ def biseccion():
         resultado_de_punto_medio = obtener_funcion(expresion_punto_medio, ['a', 'b'])(a, b)
         punto_medio_evaluado_en_funcion = funcion(resultado_de_punto_medio)
         valores.append(resultado_de_punto_medio)
-        # print('Intervalo: ', intervalo)
-        # print('Resultado de a: ', resultado_de_a)
-        # print('Resultado de b: ', resultado_de_b)
-        # print('Resultado de Xm: ', resultado_de_punto_medio)
-        # print('f(a) * f(Xm): ', resultado_de_a * punto_medio_evaluado_en_funcion)
     
         if resultado_de_a * punto_medio_evaluado_en_funcion < 0:
             intervalo[1] = resultado_de_punto_medio
@@ -122,18 +115,13 @@ def newton ():
     print('Método de Newton')
     print('Ejemplo de variables: "a" o "a,b,c" si son mas variables\n')
 
-    # x^4 + 3*(x^3) - 2
-
     # Pedir los datos al usuario
     variable = input('Ingrese la variable: ')
-    expresion = input("Ingrese la función en términos de x (ejemplo: x**3 - 4*x + 1): ")
+    expresion = input("Ingrese la función (ejemplo: x**3 - 4*x + 1): ")
 
     # Obtener funciones
     funcion = obtener_funcion(expresion, variable) 
     funcion_derivada = obtener_funcion(f'diff({expresion}, {variable})', variable)
-
-    # Calcular derivada automáticamente
-
 
     # Pedir el valor inicial al usuario
     x0 = float(input("Ingrese el valor inicial x0: "))
