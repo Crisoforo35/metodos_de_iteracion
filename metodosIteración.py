@@ -1,16 +1,8 @@
 from typing import List
 from sympy import symbols, lambdify, sympify #type: ignore
+from os import system
 
 parar_bucle_principal = True
-
-print('''
-    Funciones disponibles:
-      π: pi,
-      |x|: abs,
-      e (euler): E,
-      diff(expresion, variable): Derivar una expresión,
-      abs(expresion): Valor absoluto
-''')
 
 def obtener_funcion (expresion: str, variables: str | List[str] ):
     '''
@@ -63,9 +55,14 @@ def biseccion():
     b = float(input('Ingrese el valor del intervalo "b": '))
     intervalo = [a, b]
 
+    iteraciones = 0
     while True:
         a = intervalo[0]
         b = intervalo[1]
+        iteraciones += 1
+        if iteraciones > 1000:
+            print('No se encontró la raíz en el número máximo de iteraciones (1,000).')
+            return
 
         # Evaluar la función en los valores de a, b
         resultado_de_a = funcion(a)
@@ -115,8 +112,79 @@ def biseccion():
                     print(f'{i+1}: {valores[i]}')
                 return
 
+def newton ():
+    """
+    Método de Newton que permite al usuario ingresar la función y el punto inicial.
+    """
+    funcion = ''
+    funcion_derivada = ''
+
+    print('Método de Newton')
+    print('Ejemplo de variables: "a" o "a,b,c" si son mas variables\n')
+
+    # x^4 + 3*(x^3) - 2
+
+    # Pedir los datos al usuario
+    variable = input('Ingrese la variable: ')
+    expresion = input("Ingrese la función en términos de x (ejemplo: x**3 - 4*x + 1): ")
+
+    # Obtener funciones
+    funcion = obtener_funcion(expresion, variable) 
+    funcion_derivada = obtener_funcion(f'diff({expresion}, {variable})', variable)
+
+    # Calcular derivada automáticamente
+
+
+    # Pedir el valor inicial al usuario
+    x0 = float(input("Ingrese el valor inicial x0: "))
+    x_n = x0
+    # Configuración del método de Newton
+    tol = 1e-6
+    max_iter = 1000
+
+    # Iteraciones del método de Newton
+    for _ in range(max_iter):
+        funcion_evaluada = funcion(x_n)
+        funcion_derivada_evaluada = funcion_derivada(x_n)
+
+        if abs(funcion_derivada_evaluada) < 1e-10:  # Evita división por cero
+            raise ValueError("La derivada es muy pequeña. Intenta otro x0.")
+
+        x_n1 = x_n - funcion_evaluada / funcion_derivada_evaluada # Fórmula de Newton
+
+        if abs(x_n1 - x_n) < tol:  # Criterio de convergencia
+            print(f"La raíz encontrada es: {x_n1}")
+            return
+
+        x_n = x_n1  # Actualizar x_n
+
+    print("No se encontró la raíz en el número máximo de iteraciones.")
+
 while parar_bucle_principal:
     try:
-        biseccion()
+        print('\nMétodos de iteración')
+        print('''
+Métodos disponibles:
+    biseccion -> 1,
+    newton -> 2
+        ''')
+        metodo = int(input('Ingrese el método que desea utilizar: '))
+        system('cls')
+
+        print('''
+Funciones disponibles:
+    π: pi,
+    |x|: abs,
+    e (euler): E,
+    diff(expresion, variable): Derivar una expresión,
+    abs(expresion): Valor absoluto de una expresión
+        ''')
+
+        if metodo == 1:
+            biseccion()
+        elif metodo == 2:
+            newton()
+        else:
+            print('Método no encontrado')
     except ValueError as error:
         print('\nError', error, '\n')
