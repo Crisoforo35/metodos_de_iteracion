@@ -148,6 +148,49 @@ def newton ():
 
     print("No se encontró la raíz en el número máximo de iteraciones.")
 
+def secante():
+    function = ''
+    valores = []
+
+    print('Método de la secante')
+
+    variable = input('Ingrese la variable: ')
+    expresion = input('Ingrese la función: ')
+    print('\n')
+
+    function = obtener_funcion(expresion, variable)
+
+    x0 = float(input('Ingrese el valor inicial x0: '))
+    x1 = float(input('Ingrese el valor inicial x1: '))
+    print('\n')
+
+    valor_inicial = [x0, x1]
+
+    tolerancia = 0
+    maxima_iteracion = 1000
+
+    for _ in range(maxima_iteracion):
+        x0 = valor_inicial[0]
+        x1 = valor_inicial[1]
+
+        funcion_evaluada_x0 = function(x0)
+        funcion_evaluada_x1 = function(x1)
+
+        if funcion_evaluada_x1 - funcion_evaluada_x0 == 0:
+            raise ValueError('La función no es válida para el método de la secante.')
+
+        x2 = obtener_funcion('x1 - (fx1 * (x1 - x0) / (fx1 - fx0))', ['x0', 'x1', 'fx0', 'fx1'])(x0, x1, funcion_evaluada_x0, funcion_evaluada_x1)
+        valor_inicial = [x1, x2]
+        resultado_toleracia = obtener_funcion('abs(x - y)', ['x', 'y'])(x1, x2)
+        valores.append({ "valor": str(x2), "tolerancia": str(resultado_toleracia) })
+
+        if resultado_toleracia <= tolerancia:
+            print(f'La raíz encontrada es: {x2}')
+            print('\n#', 'x'.center(50, ' '), 'tolerancia'.center(50, ' '))
+            for i in range(len(valores)):
+                print(f'{i+1}: {valores[i]["valor"].center(50, " ")} {valores[i]["tolerancia"].center(50, " ")}')
+            return
+
 while parar_bucle_principal:
     try:
         print('\nMétodos de iteración')
@@ -155,6 +198,7 @@ while parar_bucle_principal:
 Métodos disponibles:
     biseccion -> 1,
     newton -> 2
+    secante -> 3
         ''')
         metodo = int(input('Ingrese el método que desea utilizar: '))
         system('cls')
@@ -172,6 +216,8 @@ Funciones disponibles:
             biseccion()
         elif metodo == 2:
             newton()
+        elif metodo == 3:
+            secante()
         else:
             print('Método no encontrado')
     except ValueError as error:
