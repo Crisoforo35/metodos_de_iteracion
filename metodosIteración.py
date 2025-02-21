@@ -24,7 +24,7 @@ def obtener_funcion (expresion, variables):
     >>> 5
 
     '''
-    if isinstance(variables, List):
+    if isinstance(variables, list):
         simbolos = symbols(','.join(variables))
     else:
         simbolos = symbols(variables)
