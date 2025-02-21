@@ -1,6 +1,6 @@
 from typing import List
 from sympy import symbols, lambdify, sympify #type: ignore
-from os import system
+from os import system, name as os_name
 
 parar_bucle_principal = True
 
@@ -33,11 +33,29 @@ def obtener_funcion (expresion: str, variables: str | List[str] ):
     funcion = lambdify(simbolos, evaluar_expresion)
     return funcion
 
+def obtener_error_porcentual (valor_actual: float, valor_anterior: float) -> float:
+    '''
+    Esta función recibe dos parámetros: valor_actual, valor_anterior.
+    
+    Parámetros:\n
+    \tvalor_actual (float): El valor actual.\n
+    \tvalor_anterior (float): El valor anterior.
+
+    Retorna:\n
+    \tfloat: Retorna el error porcentual.
+
+    Ejemplo:\n
+    >>> error_porcentual(3, 2)
+    >>> 33.3
+
+    >>> error_porcentual(10, 5)
+    >>> 50.0
+
+    '''
+    return obtener_funcion('abs((x - y) / x) * 100', ['x', 'y'])(valor_actual, valor_anterior)
+
 def biseccion():
     # Definir las variables para utilizar
-    intervalo = [0, 1]
-    variable = ''
-    funcion = ''
     valores = []
 
     # Solicitar los datos al usuario
@@ -53,14 +71,10 @@ def biseccion():
     b = float(input('Ingrese el valor del intervalo "b": '))
     intervalo = [a, b]
 
-    iteraciones = 0
-    while True:
+    maxima_iteracion = 1000
+    for _ in range(maxima_iteracion):
         a = intervalo[0]
         b = intervalo[1]
-        iteraciones += 1
-        if iteraciones > 1000:
-            print('No se encontró la raíz en el número máximo de iteraciones (1,000).')
-            return
 
         # Evaluar la función en los valores de a, b
         resultado_de_a = funcion(a)
@@ -69,48 +83,102 @@ def biseccion():
         expresion_punto_medio = '(a + b) / 2'
         resultado_de_punto_medio = obtener_funcion(expresion_punto_medio, ['a', 'b'])(a, b)
         punto_medio_evaluado_en_funcion = funcion(resultado_de_punto_medio)
-        valores.append(resultado_de_punto_medio)
+        valores.append({ "valor": str(resultado_de_punto_medio), "error_porcentual": '' })
     
         if resultado_de_a * punto_medio_evaluado_en_funcion < 0:
             intervalo[1] = resultado_de_punto_medio
         elif resultado_de_a * punto_medio_evaluado_en_funcion > 0:
             intervalo[0] = resultado_de_punto_medio
         elif resultado_de_a * punto_medio_evaluado_en_funcion == 0:
-            print(f'\nf(a) = {resultado_de_a}')
+            print('\n\033[;1m#\033[0m', '\033[;1mPunto medio\033[0m'.center(50, ' '), '\033[;1mError Porcentual\033[0m'.center(50, ' '))
+            for i in range(len(valores)):
+                print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["error_porcentual"].center(40, " ")}')
+
+            print(f'f(a) = {resultado_de_a}')
             print(f'f(b) = {resultado_de_b}')
             print('Intervalo: ', intervalo)
-            print('El resultado es: ', resultado_de_punto_medio)
-            
-            print('\n#        punto medio')
-            for i in range(len(valores)):
-                print(f'Punto medio {i+1}: {valores[i]}')
+            print(f'\033[32;1mEl resultado es: {resultado_de_punto_medio}\033[0m')
             return
+  
 
         if len(valores) > 1:
-            valor_anterior = valores[-2]
-            expresion_error_porcentual = 'abs((punto_medio - valor_anterior) / punto_medio) * 100'
-            
-            error_porcentual_funcion = obtener_funcion(expresion_error_porcentual, ['punto_medio', 'valor_anterior'])
-            error_porcentual = error_porcentual_funcion(resultado_de_punto_medio, valor_anterior)
+            valor_anterior = float(valores[-2]['valor'])
+            error_porcentual = obtener_error_porcentual(resultado_de_punto_medio, valor_anterior)
+            valores[-1]['error_porcentual'] = str(error_porcentual)
+
             if (error_porcentual == 0):
+                print('\n\033[;1m#\033[0m', '\033[;1mPunto medio\033[0m'.center(50, ' '), '\033[;1mError Porcentual\033[0m'.center(50, ' '))
+                for i in range(len(valores)):
+                    print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["error_porcentual"].center(40, " ")}')
+
                 print(f'Punto medio actual: {resultado_de_punto_medio} y punto medio anterior: {valor_anterior}')
                 print(f'f(a) = {resultado_de_a}')
                 print(f'f(b) = {resultado_de_b}')
                 print('Intervalo: ', intervalo)
-                print('El resultado es: ', resultado_de_punto_medio)
+                print(f'\033[32;1mEl resultado es: {resultado_de_punto_medio}\033[0m')
                 print('Error porcentual: ', error_porcentual)
-
-                print('\n#        punto medio')
-                for i in range(len(valores)):
-                    print(f'{i+1}: {valores[i]}')
                 return
+    print('No se encontró la raíz en el número máximo de iteraciones.')
+
+def falsa_posicion():
+    valores = []
+
+    print('Método de la falsa posición')
+    print('Ejemplo de variables: "a" o "a,b,c" si son mas variables\n')
+
+    variable = input('Ingrese la variable: ')
+    expresion = input('Ingrese la función: ')
+    print('\n')
+
+    funcion = obtener_funcion(expresion, variable)
+
+    a = float(input('Ingrese el valor del intervalo "a": '))
+    b = float(input('Ingrese el valor del intervalo "b": '))
+    print('\n')
+
+    intervalo = [a, b]
+
+    # Inicializar variables
+    maxima_iteracion = 1000
+
+    for i in range(maxima_iteracion):
+        a = intervalo[0]
+        b = intervalo[1]
+
+        x_i = obtener_funcion('((a * f_b) - (b * f_a)) / (f_b - f_a)', ['a', 'b', 'f_a', 'f_b'])(a, b, funcion(a), funcion(b))
+        valores.append({ "valor": str(x_i), "error_porcentual": '' })
+
+        if (len(valores) > 1):
+            valor_anterior = float(valores[-2]['valor'])
+            error_calculado = obtener_error_porcentual(x_i, valor_anterior)
+            valores[-1]['error_porcentual'] = str(error_calculado)
+
+
+            if error_calculado == 0:
+                print('\n\033[;1m#\033[0m', '\033[;1mx\033[0m'.center(50, ' '), '\033[;1mError Porcentual\033[0m'.center(50, ' '))
+                for i in range(len(valores)):
+                    print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["error_porcentual"].center(40, " ")}')
+                print(f'\033[32;1mLa raíz encontrada es: {x_i}\033[0m')
+                return
+            
+        if funcion(a) * funcion(x_i) < 0:
+            intervalo[1] = x_i
+        elif funcion(a) * funcion(x_i) > 0:
+            intervalo[0] = x_i
+        else:
+            print('\n\033[;1m#\033[0m', '\033[;1mx\033[0m'.center(50, ' '), '\033[;1mError Porcentual\033[0m'.center(50, ' '))
+            for i in range(len(valores)):
+                print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["error_porcentual"].center(40, " ")}')
+            print(f'\033[32;1mLa raíz encontrada es: {x_i}\033[0m')
+            return
+    print('No se encontró la raíz en el número máximo de iteraciones.')
 
 def newton ():
     """
     Método de Newton que permite al usuario ingresar la función y el punto inicial.
     """
-    funcion = ''
-    funcion_derivada = ''
+
+    valores = []
 
     print('Método de Newton')
     print('Ejemplo de variables: "a" o "a,b,c" si son mas variables\n')
@@ -127,7 +195,7 @@ def newton ():
     x0 = float(input("Ingrese el valor inicial x0: "))
     x_n = x0
     # Configuración del método de Newton
-    tol = 1e-6
+    tol = 0
     max_iter = 1000
 
     # Iteraciones del método de Newton
@@ -139,9 +207,14 @@ def newton ():
             raise ValueError("La derivada es muy pequeña. Intenta otro x0.")
 
         x_n1 = x_n - funcion_evaluada / funcion_derivada_evaluada # Fórmula de Newton
+        tolerancia = abs(x_n1 - x_n)
+        valores.append({ "valor": str(x_n1), "Tolerancia": str(tolerancia) })
 
-        if abs(x_n1 - x_n) < tol:  # Criterio de convergencia
-            print(f"La raíz encontrada es: {x_n1}")
+        if tolerancia == tol:  # Criterio de convergencia
+            print('\n\033[;1m#\033[0m', '\033[;1mValor\033[0m'.center(50, ' '), '\033[;1mTolerancia\033[0m'.center(50, ' '))
+            for i in range(len(valores)):
+                print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["Tolerancia"].center(40, " ")}')
+            print(f'\033[32;1mLa raíz encontrada es: {x_n1}\033[0m')
             return
 
         x_n = x_n1  # Actualizar x_n
@@ -149,7 +222,6 @@ def newton ():
     print("No se encontró la raíz en el número máximo de iteraciones.")
 
 def secante():
-    function = ''
     valores = []
 
     print('Método de la secante')
@@ -158,7 +230,7 @@ def secante():
     expresion = input('Ingrese la función: ')
     print('\n')
 
-    function = obtener_funcion(expresion, variable)
+    funcion = obtener_funcion(expresion, variable)
 
     x0 = float(input('Ingrese el valor inicial x0: '))
     x1 = float(input('Ingrese el valor inicial x1: '))
@@ -173,8 +245,8 @@ def secante():
         x0 = valor_inicial[0]
         x1 = valor_inicial[1]
 
-        funcion_evaluada_x0 = function(x0)
-        funcion_evaluada_x1 = function(x1)
+        funcion_evaluada_x0 = funcion(x0)
+        funcion_evaluada_x1 = funcion(x1)
 
         if funcion_evaluada_x1 - funcion_evaluada_x0 == 0:
             raise ValueError('La función no es válida para el método de la secante.')
@@ -185,10 +257,10 @@ def secante():
         valores.append({ "valor": str(x2), "tolerancia": str(resultado_toleracia) })
 
         if resultado_toleracia <= tolerancia:
-            print(f'La raíz encontrada es: {x2}')
-            print('\n#', 'x'.center(50, ' '), 'tolerancia'.center(50, ' '))
+            print('\n\033[;1m#\033[0m', '\033[;1mx\033[;0m'.center(50, ' '), '\033[;1mTolerancia\033[0m'.center(50, ' '))
             for i in range(len(valores)):
-                print(f'{i+1}: {valores[i]["valor"].center(50, " ")} {valores[i]["tolerancia"].center(50, " ")}')
+                print(f'{i+1}: {valores[i]["valor"].center(40, " ")} {valores[i]["tolerancia"].center(40, " ")}')
+            print(f'\033[32;1mLa raíz encontrada es: {x2}\033[0m')
             return
 
 while parar_bucle_principal:
@@ -199,9 +271,10 @@ Métodos disponibles:
     biseccion -> 1,
     newton -> 2
     secante -> 3
+    falsa posición -> 4
         ''')
         metodo = int(input('Ingrese el método que desea utilizar: '))
-        system('cls')
+        system('cls' if os_name == 'nt' else 'clear')
 
         print('''
 Funciones disponibles:
@@ -218,6 +291,8 @@ Funciones disponibles:
             newton()
         elif metodo == 3:
             secante()
+        elif metodo == 4:
+            falsa_posicion()
         else:
             print('Método no encontrado')
     except ValueError as error:
