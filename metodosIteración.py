@@ -1,4 +1,3 @@
-from typing import List
 from sympy import symbols, lambdify, sympify #type: ignore
 from os import system, name as os_name
 
