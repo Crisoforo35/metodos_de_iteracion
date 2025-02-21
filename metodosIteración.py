@@ -4,7 +4,7 @@ from os import system, name as os_name
 
 parar_bucle_principal = True
 
-def obtener_funcion (expresion: str, variables: str | List[str] ):
+def obtener_funcion (expresion, variables):
     '''
     Esta función recibe dos parámetros: expresión, variables.
     
@@ -33,7 +33,7 @@ def obtener_funcion (expresion: str, variables: str | List[str] ):
     funcion = lambdify(simbolos, evaluar_expresion)
     return funcion
 
-def obtener_error_porcentual (valor_actual: float, valor_anterior: float) -> float:
+def obtener_error_porcentual (valor_actual, valor_anterior):
     '''
     Esta función recibe dos parámetros: valor_actual, valor_anterior.
     
